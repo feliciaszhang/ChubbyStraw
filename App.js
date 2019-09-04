@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, TextInput, TouchableHighlight, Image, Touchable
 import { List, ListItem } from "react-native-elements";
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Animatable from 'react-native-animatable';
-import Icon from "react-native-vector-icons/Feather";
+import Icon from 'react-native-vector-icons/Feather';
 import Boba from './components/boba.js';
 
 
