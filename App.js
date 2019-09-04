@@ -1,8 +1,6 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableHighlight, Image, TouchableWithoutFeedback, FlatList } from 'react-native';
-import { List, ListItem } from "react-native-elements";
+import { StyleSheet, Text, View, TextInput, TouchableHighlight, Image, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import * as Animatable from 'react-native-animatable';
 import Icon from 'react-native-vector-icons/Feather';
 import Boba from './components/boba.js';
 
@@ -10,42 +8,22 @@ import Boba from './components/boba.js';
 export default class App extends React.Component {
   constructor(props) {
     super(props);
-    this.empty = {city: "", results: "", displaytext: "", displayemoji: ""};
-    this.array = [];
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleChange = this.handleChange.bind(this);
-    this.handleAdd = this.handleAdd.bind(this);
     this.state = {
-      value: "",
       city: "",
       results: "",
       displaytext: "",
       displayemijo: "",
-      data: [],
-      prevdata: [],
-      isLoading: false,
+      data: {},
       isEmpty: true,
     };
   }
 
-  handleViewRef = ref => this.view = ref;
+  handleSave = () => {
 
-  handleAdd(e) {
-    if (this.state.prevdata === [this.empty]) {
-      this.setState({data: [...this.array], prevdata: [], isEmpty: false})
-    } else {
-      this.setState({data: [...this.array, this.empty], prevdata: [this.empty], isEmpty: false})
-    }
   }
 
-  handleChange(event) {
-    this.setState({value: event.nativeEvent.text})
-  }
-
-  handleSubmit(e) {
-    this.view.bounce(1000);
-    const city = this.state.value;
-    this.setState({value: "", city: city, isLoading: true});
+  handleSubmit = () => {
+    const {city} = this.state;
     fetch(
       `https://developers.zomato.com/api/v2.1/cities?q=${city}&apikey=da9010e85d15798abd4afa175a44f514`
     )
@@ -86,45 +64,30 @@ export default class App extends React.Component {
             }
           });
       })
+    this.setState({city: ""});
   };
 
 
   render() {
-    const isLoading = this.state.isLoading;
-    const isEmpty = this.state.isEmpty;
+    const {isEmpty, city} = this.state;
     return (
       <View style={styles.container}>
       <LinearGradient colors={['#FFA392', '#ffecd2']} style={styles.backgroundgradient} />
-      <View style={styles.addshadow}></View>
       {isEmpty ? <Image source={require('./assets/boba.png')} style={styles.image} /> : null}
-        <Text style={styles.chubbystraw}>
-          ChubbyStraw
-        </Text>
-        <View>
-          <View>
-            <View style={styles.inputContainer}>
-              <TextInput style={styles.textInput} value={this.state.value}
-                onChange={this.handleChange.bind(this)} placeholder="C I T Y" />
-            </View>
-          </View>
-          <View style={styles.buttonContainer}>
-            <TouchableHighlight underlayColor='#ECE1D9' style={styles.Button} onPress={this.handleAdd}>
-              <View>
-                <Text style={styles.ButtonText}>ADD DAT BOBA ( ੭ˊ꒳ˋ)੭ ♡⁺˚</Text>
-              </View>
-            </TouchableHighlight>
-          </View>
+        <Text style={styles.title}>ChubbyStraw</Text>
+
+        <View style={styles.inputContainer}>
+          <TextInput style={styles.textInput} value={city} placeholder="C I T Y"
+          onChangeText={city => this.setState({city: city})} placeholderTextColor='rgba(89,17,23,0.4)' />
+          <TouchableHighlight underlayColor='#46090F' onPressOut={this.handleSubmit} style={styles.search}>
+            <View style={styles.searchIcon}><Icon name="search" size={30} color='#F3C4B7' /></View>
+          </TouchableHighlight>
         </View>
-        <View style={{height: 620}}>
-          <FlatList data={this.state.data.reverse()} contentContainerStyle={styles.bobaContainer}
-          keyboardShouldPersistTaps='handled' keyExtractor={(item, index) => item.city}
-          renderItem={({item}) => <Boba city={item.city} results={item.results} displaytext={item.displaytext} displayemoji={item.displayemoji} />} />
-        </View>
-          <TouchableWithoutFeedback onPress={this.handleSubmit}>
-            <Animatable.View ref={this.handleViewRef} style={styles.circle}>
-              <View style={styles.add}><Icon name="search" size={30} color='#F3C4B7' /></View>
-            </Animatable.View>
-          </TouchableWithoutFeedback>
+
+        <TouchableHighlight underlayColor='#ECE1D9' style={styles.save} onPressOut={this.handleSave}>
+          <Text style={styles.saveText}>SAVE DAT BOBA ( ੭ˊ꒳ˋ)੭ ♡⁺˚</Text>
+        </TouchableHighlight>
+
       </View>
     );
   }
@@ -136,8 +99,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFCCAA',
-    alignItems: 'center',
-    justifyContent: 'center',
+    paddingTop: 70,
   },
   image: {
     opacity: 0.1,
@@ -145,6 +107,7 @@ const styles = StyleSheet.create({
     top: 400,
     width: 200,
     height: 300,
+    alignSelf: 'center',
   },
   backgroundgradient: {
     position: 'absolute',
@@ -153,8 +116,7 @@ const styles = StyleSheet.create({
     top: 0,
     height: 1000,
   },
-  chubbystraw: {
-    paddingTop: 115,
+  title: {
     fontSize: 48,
     fontWeight: '900',
     color: 'white',
@@ -171,13 +133,16 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     paddingTop: 20,
-    paddingLeft: 25,
-    paddingRight: 100,
+    marginLeft: 32,
+    marginRight: 32,
+    justifyContent: 'space-between',
+    flexDirection: 'row',
   },
   textInput: {
     borderColor: 'rgba(89,17,23,0.2)',
     borderBottomWidth: 3,
     color: '#591117',
+    width: 270,
     height: 50,
     fontSize: 25,
     paddingLeft: 10,
@@ -186,11 +151,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     letterSpacing: 3,
   },
-  buttonContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  Button: {
+  save: {
     width: 370,
     height: 65,
     borderWidth: 0,
@@ -203,7 +164,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 10,
   },
-  ButtonText: {
+  saveText: {
     color: 'rgba(89,17,23,0.4)',
     fontWeight: 'bold',
     fontSize: 20,
@@ -211,29 +172,18 @@ const styles = StyleSheet.create({
     fontFamily: 'ArialRoundedMTBold',
     letterSpacing: 3,
   },
-  circle: {
+  search: {
     backgroundColor: '#591117',
-    bottom: 780,
-    left: 150,
     width: 60,
     height: 60,
     borderRadius: 30,
-  },
-  add: {
-    left: 15,
-    top: 15,
-  },
-  addshadow: {
-    position: 'absolute',
-    backgroundColor: '#BC8B6A',
-    bottom: 735,
-    left: 335,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    shadowOffset:{ width: 10, height: 25,},
+    shadowOffset:{ width: 5, height: 5,},
     shadowColor: '#975326',
     shadowOpacity: 0.6,
-    shadowRadius: 5,
+    shadowRadius: 7,
+  },
+  searchIcon: {
+    left: 15,
+    top: 15,
   }
 });
