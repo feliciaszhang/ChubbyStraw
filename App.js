@@ -1,6 +1,6 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableHighlight, Image, ScrollView } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { StyleSheet, Text, View, TextInput, TouchableHighlight, AsyncStorage, Image, ScrollView } from 'react-native';
+import { LinearGradient } from 'expo';
 import Icon from 'react-native-vector-icons/Feather';
 import Boba from './components/boba.js';
 
@@ -9,17 +9,36 @@ export default class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      city: "",
-      results: "",
-      displaytext: "",
-      displayemijo: "",
+      city: '',
       data: {},
+      newData: {},
       isEmpty: true,
     };
   }
 
-  handleSave = () => {
+  componentDidMount = () => {
+    this.loadBoba();
+  }
 
+  loadBoba = async () => {
+    try {
+      const getBoba = await AsyncStorage.getItem('boba');
+      const parsedBoba = JSON.parse(getBoba);
+      this.setState({data: parsedBoba, isEmpty: false || {}});
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  handleSave = () => {
+    const {data, newData} = this.state
+    if (newData) {
+      let copy = data
+      const city = newData.city
+      copy[city] = {city: city, results: newData.results}
+      AsyncStorage.setItem('boba', JSON.stringify(copy))
+      this.setState({newData: {}})
+    }
   }
 
   handleSubmit = () => {
@@ -29,51 +48,26 @@ export default class App extends React.Component {
     )
       .then(res => res.json())
       .then(json => {
-        const city = json.location_suggestions[0];
-        const city_id = city.id;
+        const selectCity = json.location_suggestions[0];
+        const city_id = selectCity.id;
         fetch(
           `https://developers.zomato.com/api/v2.1/search?entity_id=${city_id}&entity_type=city&q=boba&apikey=da9010e85d15798abd4afa175a44f514`
         )
           .then(res => res.json())
           .then(json => {
-            this.setState({results: json.results_found, displaytext: "BOBA PLACES", isLoading: false, prevdata: [{city: this.state.city}], isEmpty: false});
-            const r = json.results_found;
-            if (r == 0) {
-              if (this.state.prevdata === [this.empty]) {
-                this.setState({data: [...this.array]})
-              } else {
-                this.array.push({city: this.state.city, results: this.state.results, displaytext: this.state.displaytext, displayemoji: "ᕙ(⇀‸↼‶)ᕗ"})
-                this.setState({data: [...this.array]})
-              }
-            }
-            if (r != 0 && r < 100) {
-              if (this.state.prevdata === [this.empty]) {
-                this.setState({data: [...this.array]})
-              } else {
-                this.array.push({city: this.state.city, results: this.state.results, displaytext: this.state.displaytext, displayemoji: "ヾ(≧∇≦*)ゝ"})
-                this.setState({data: [...this.array]})
-              }
-            }
-            if (r > 100) {
-              if (this.state.prevdata === [this.empty]) {
-                this.setState({data: [...this.array]})
-              } else {
-                this.array.push({city: this.state.city, results: this.state.results, displaytext: this.state.displaytext, displayemoji: "ᕕ( ᐛ )ᕗ"})
-                this.setState({data: [...this.array]})
-              }
-            }
+            this.setState({newData: {city: city, results: json.results_found}, isEmpty: false});
           });
       })
-    this.setState({city: ""});
+    this.setState({city: ''});
   };
 
 
   render() {
-    const {isEmpty, city} = this.state;
+    const {isEmpty, city, data, newData} = this.state;
     return (
       <View style={styles.container}>
       <LinearGradient colors={['#FFA392', '#ffecd2']} style={styles.backgroundgradient} />
-      {isEmpty ? <Image source={require('./assets/boba.png')} style={styles.image} /> : null}
+
         <Text style={styles.title}>ChubbyStraw</Text>
 
         <View style={styles.inputContainer}>
@@ -87,6 +81,13 @@ export default class App extends React.Component {
         <TouchableHighlight underlayColor='#ECE1D9' style={styles.save} onPressOut={this.handleSave}>
           <Text style={styles.saveText}>SAVE DAT BOBA ( ੭ˊ꒳ˋ)੭ ♡⁺˚</Text>
         </TouchableHighlight>
+
+        {isEmpty ? <Image source={require('./assets/boba.png')} style={styles.image} /> : 
+          <ScrollView contentContainerStyle={styles.bobaContainer}>
+            {newData ? <Boba key={newData.city} {...newData} /> : null}
+            {data ? Object.values(data).map(item => <Boba key={item.city} {...item} />) : null}
+          </ScrollView>
+        }
 
       </View>
     );

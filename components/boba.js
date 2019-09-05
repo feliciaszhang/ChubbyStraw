@@ -2,19 +2,27 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo';
 
-const Boba = ({city, results, displaytext, displayemoji}) => {
+export default class Boba extends React.Component {
 
-  return (
-    <View style={styles.card}>
-    <LinearGradient colors={['#98B4BC', '#BFADAA']} style={styles.cardgradient} />
-      <View>
-        <Text style={styles.city}>{city}</Text>
+  render() {
+
+    const noBoba = "ᕙ(⇀‸↼‶)ᕗ"
+    const fewBoba = "ヾ(≧∇≦*)ゝ"
+    const manyBoba = "ᕕ( ᐛ )ᕗ"
+
+    const {city, results} = this.props
+    return (
+      <View style={styles.card}>
+      <LinearGradient colors={['#98B4BC', '#BFADAA']} style={styles.cardgradient} />
+        <View>
+          <Text style={styles.city}>{city}</Text>
+        </View>
+        <View>
+          <Text style={styles.results}>{results} BOBA PLACES {noBoba}</Text>
+        </View>
       </View>
-      <View>
-        <Text style={styles.results}>{results} {displaytext} {displayemoji}</Text>
-      </View>
-    </View>
-  );
+    );
+  }
 }
 
 const styles = StyleSheet.create({
@@ -58,5 +66,3 @@ const styles = StyleSheet.create({
     fontFamily: 'ArialRoundedMTBold',
   },
 });
-
-export default Boba;
