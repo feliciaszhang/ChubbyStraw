@@ -1,46 +1,55 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableHighlight } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import Swipeable from 'react-native-gesture-handler/Swipeable';
+import Icon from 'react-native-vector-icons/Feather';
 
 export default class Boba extends React.Component {
+  renderRight = () => {
+    const {city, deleteBoba} = this.props
+    return (
+      <TouchableHighlight onPressOut={() => deleteBoba(city)}>
+        <Icon name='trash-2' size={60} color='rgba(89,17,23,0.2)' />
+      </TouchableHighlight>
+    )
+  }
 
   render() {
-
     const noBoba = "ᕙ(⇀‸↼‶)ᕗ"
     const fewBoba = "ヾ(≧∇≦*)ゝ"
     const manyBoba = "ᕕ( ᐛ )ᕗ"
-
-    const {city, results, deleteBoba} = this.props
+    const {city, results} = this.props
     return (
+      <Swipeable friction={2} leftThreshold={170} renderRightActions={this.renderRight}>
       <View style={styles.card}>
       <LinearGradient colors={['#98B4BC', '#BFADAA']} style={styles.cardgradient} />
         <View>
           <Text style={styles.city}>{city}</Text>
         </View>
         <View>
-          <Text style={styles.results}>{results} BOBA PLACES {noBoba}</Text>
+          {results == 0 ? <Text style={styles.results}>{results} BOBA PLACES {noBoba}</Text> :
+            results < 100 ? <Text style={styles.results}>{results} BOBA PLACES {fewBoba}</Text> :
+            <Text style={styles.results}>{results} BOBA PLACES {manyBoba}</Text>
+          }
         </View>
 
-        <TouchableHighlight onPressOut={() => deleteBoba(city)}>
-          <View style={{width:20,height:20,backgroundColor:'#591117'}} />
-        </TouchableHighlight>
-
       </View>
+      </Swipeable>
     );
   }
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#98B4BC',
+    backgroundColor: 'transparent',
     borderRadius: 20,
     borderWidth: 0,
     width: 360,
     height: 180,
-    shadowOffset:{ width: 5, height: 10,},
+    shadowOffset:{ width: 5, height: 3,},
     shadowColor: '#975326',
-    shadowOpacity: 0.5,
-    shadowRadius: 10,
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
     margin: 10,
   },
   cardgradient: {

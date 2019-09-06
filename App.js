@@ -143,8 +143,7 @@ const styles = StyleSheet.create({
     width: 400,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 20,
-    backgroundColor: 'transparent',
+    marginTop: 20,
   },
   inputContainer: {
     paddingTop: 20,
