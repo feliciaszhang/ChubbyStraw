@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableHighlight, AsyncStorage, Image, ScrollView } from 'react-native';
-import { LinearGradient } from 'expo';
+import { LinearGradient } from 'expo-linear-gradient';
+import { AppLoading } from 'expo';
 import Icon from 'react-native-vector-icons/Feather';
 import Boba from './components/boba.js';
 
@@ -12,8 +13,13 @@ export default class App extends React.Component {
       city: '',
       data: {},
       newData: {},
-      isEmpty: true,
+      loaded: false,
+      noNewData: true
     };
+  }
+
+  componentDidUpdate = () => {
+    this.loadBoba();
   }
 
   componentDidMount = () => {
@@ -24,20 +30,26 @@ export default class App extends React.Component {
     try {
       const getBoba = await AsyncStorage.getItem('boba');
       const parsedBoba = JSON.parse(getBoba);
-      this.setState({data: parsedBoba, isEmpty: false || {}});
+      this.setState({loaded: true, data: parsedBoba || {}});
     } catch (err) {
       console.log(err);
     }
   };
 
+  deleteBoba = city => {
+    const {data} = this.state
+    let copy = data
+    delete copy[city]
+    AsyncStorage.setItem('boba', JSON.stringify(copy))
+  }
+
   handleSave = () => {
     const {data, newData} = this.state
     if (newData) {
       let copy = data
-      const city = newData.city
-      copy[city] = {city: city, results: newData.results}
+      copy[newData.city] = {city: newData.city, results: newData.results}
       AsyncStorage.setItem('boba', JSON.stringify(copy))
-      this.setState({newData: {}})
+      this.setState({noNewData: true, newData: {}})
     }
   }
 
@@ -55,7 +67,7 @@ export default class App extends React.Component {
         )
           .then(res => res.json())
           .then(json => {
-            this.setState({newData: {city: city, results: json.results_found}, isEmpty: false});
+            this.setState({noNewData: false, newData: {city: city, results: json.results_found}});
           });
       })
     this.setState({city: ''});
@@ -63,7 +75,10 @@ export default class App extends React.Component {
 
 
   render() {
-    const {isEmpty, city, data, newData} = this.state;
+    const {city, data, newData, loaded, noNewData} = this.state;
+    if (!loaded) {
+      return <AppLoading />;
+    }
     return (
       <View style={styles.container}>
       <LinearGradient colors={['#FFA392', '#ffecd2']} style={styles.backgroundgradient} />
@@ -82,12 +97,11 @@ export default class App extends React.Component {
           <Text style={styles.saveText}>SAVE DAT BOBA ( ੭ˊ꒳ˋ)੭ ♡⁺˚</Text>
         </TouchableHighlight>
 
-        {isEmpty ? <Image source={require('./assets/boba.png')} style={styles.image} /> : 
-          <ScrollView contentContainerStyle={styles.bobaContainer}>
-            {newData ? <Boba key={newData.city} {...newData} /> : null}
-            {data ? Object.values(data).map(item => <Boba key={item.city} {...item} />) : null}
-          </ScrollView>
-        }
+        <Image source={require('./assets/boba.png')} style={styles.image} />
+        <ScrollView contentContainerStyle={styles.bobaContainer}>
+          {noNewData ? null : <Boba key={newData.city} deleteBoba={this.deleteBoba} {...newData} />}
+          {Object.values(data).map(item => <Boba key={item.city} deleteBoba={this.deleteBoba} {...item} />)}
+        </ScrollView>
 
       </View>
     );

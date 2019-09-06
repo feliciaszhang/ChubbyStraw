@@ -1,6 +1,6 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { LinearGradient } from 'expo';
+import { StyleSheet, Text, View, TouchableHighlight } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default class Boba extends React.Component {
 
@@ -10,7 +10,7 @@ export default class Boba extends React.Component {
     const fewBoba = "ヾ(≧∇≦*)ゝ"
     const manyBoba = "ᕕ( ᐛ )ᕗ"
 
-    const {city, results} = this.props
+    const {city, results, deleteBoba} = this.props
     return (
       <View style={styles.card}>
       <LinearGradient colors={['#98B4BC', '#BFADAA']} style={styles.cardgradient} />
@@ -20,6 +20,11 @@ export default class Boba extends React.Component {
         <View>
           <Text style={styles.results}>{results} BOBA PLACES {noBoba}</Text>
         </View>
+
+        <TouchableHighlight onPressOut={() => deleteBoba(city)}>
+          <View style={{width:20,height:20,backgroundColor:'#591117'}} />
+        </TouchableHighlight>
+
       </View>
     );
   }
