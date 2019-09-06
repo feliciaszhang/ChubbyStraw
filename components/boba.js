@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableHighlight } from 'react-native';
+import { StyleSheet, Text, View, TouchableWithoutFeedback } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import Icon from 'react-native-vector-icons/Feather';
@@ -8,9 +8,9 @@ export default class Boba extends React.Component {
   renderRight = () => {
     const {city, deleteBoba} = this.props
     return (
-      <TouchableHighlight onPressOut={() => deleteBoba(city)}>
-        <Icon name='trash-2' size={60} color='rgba(89,17,23,0.2)' />
-      </TouchableHighlight>
+      <TouchableWithoutFeedback onPressOut={() => deleteBoba(city)}>
+        <Icon name='trash-2' size={60} style={{paddingTop:60,paddingLeft:20,paddingRight:20}} color='rgba(89,17,23,0.2)' />
+      </TouchableWithoutFeedback>
     )
   }
 
@@ -20,7 +20,7 @@ export default class Boba extends React.Component {
     const manyBoba = "ᕕ( ᐛ )ᕗ"
     const {city, results} = this.props
     return (
-      <Swipeable friction={2} leftThreshold={170} renderRightActions={this.renderRight}>
+      <Swipeable friction={1} leftThreshold={5} rightThreshold={5} renderLeftActions={() => <View style={{width:5}} />} renderRightActions={this.renderRight}>
       <View style={styles.card}>
       <LinearGradient colors={['#98B4BC', '#BFADAA']} style={styles.cardgradient} />
         <View>
